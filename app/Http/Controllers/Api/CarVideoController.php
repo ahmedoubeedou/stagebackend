@@ -3,78 +3,58 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
-use App\Models\CarVideo;
 use Illuminate\Http\Request;
+use App\Models\CarVideo;
 
 class CarVideoController extends Controller
 {
-    /**
-     * 📌 إضافة فيديو لسيارة
-     */
-    public function store(Request $request, $carId)
+    // 📌 Save video path (string URL or path)
+    public function store(Request $request)
     {
-        // التحقق من الملف
         $request->validate([
-            'video' => 'required|mimes:mp4,mov,avi,wmv|max:20000',
+            'car_id' => 'required|exists:cars,id',
+            'video_path' => 'required|string'
         ]);
 
-        // التأكد من ملكية السيارة
-        $car = Car::where('id', $carId)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if (!$car) {
-            return response()->json([
-                'message' => 'Voiture introuvable ou non autorisée'
-            ], 404);
-        }
-
-        // رفع الفيديو
-        $path = $request->file('video')->store('cars/videos', 'public');
-
-        // حفظ في قاعدة البيانات
         $video = CarVideo::create([
-            'car_id' => $car->id,
-            'path' => $path
+            'car_id' => $request->car_id,
+            'video_path' => $request->video_path
         ]);
 
         return response()->json([
-            'message' => 'Vidéo ajoutée avec succès',
-            'video' => $video
+            'message' => 'Video saved successfully',
+            'data' => [
+                'id' => $video->id,
+                'car_id' => $video->car_id,
+                'url' => $video->video_path
+            ]
         ]);
     }
 
-    /**
-     * 📌 حذف فيديو
-     */
-    public function destroy(Request $request, $id)
+    // 📌 Get videos by car
+    public function getByCar($car_id)
     {
-        // البحث عن الفيديو
-        $video = CarVideo::find($id);
+        $videos = CarVideo::where('car_id', $car_id)->get();
 
-        if (!$video) {
-            return response()->json([
-                'message' => 'Vidéo introuvable'
-            ], 404);
-        }
+        return response()->json([
+            'car_id' => $car_id,
+            'videos' => $videos->map(function ($vid) {
+                return [
+                    'id' => $vid->id,
+                    'url' => $vid->video_path
+                ];
+            })
+        ]);
+    }
 
-        // التأكد من ملكية السيارة
-        $car = Car::where('id', $video->car_id)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if (!$car) {
-            return response()->json([
-                'message' => 'Non autorisé'
-            ], 403);
-        }
-
-        // حذف الفيديو
+    // 📌 Delete video
+    public function delete($id)
+    {
+        $video = CarVideo::findOrFail($id);
         $video->delete();
 
         return response()->json([
-            'message' => 'Vidéo supprimée avec succès'
+            'message' => 'Video deleted successfully'
         ]);
     }
 }

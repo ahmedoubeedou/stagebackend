@@ -80,58 +80,30 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-
-
-
 /*
 |--------------------------------------------------------------------------
-| 📸 Car Images Routes
-|--------------------------------------------------------------------------
-| هذا الجزء مسؤول عن رفع وحذف صور السيارات
-| كل العمليات محمية بـ Sanctum (يجب تسجيل الدخول)
-*/
-
+| Protected Routes (Auth required)
+|--
+------------------------------------------------------------------------*/
 Route::middleware('auth:sanctum')->group(function () {
 
-    /**
-     * 📌 إضافة صورة لسيارة معينة
-     * POST /api/cars/{carId}/images
-     */
-    Route::post('/cars/{carId}/images', [CarImageController::class, 'store']);
+    /*
+    |--------------------------
+    | 📸 Car Images
+    |--------------------------
+    */
 
-    /**
-     * 📌 حذف صورة سيارة
-     * DELETE /api/images/{id}
-     */
-    Route::delete('/images/{id}', [CarImageController::class, 'destroy']);
+    Route::post('/car-images', [CarImageController::class, 'store']);
+    Route::get('/car-images/{car_id}', [CarImageController::class, 'getByCar']);
+    Route::delete('/car-images/{id}', [CarImageController::class, 'delete']);
 
-});
+    /*
+    |--------------------------
+    | 🎥 Car Videos
+    |--------------------------
+    */
 
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| 🎥 Car Videos Routes
-|--------------------------------------------------------------------------
-| هذا الجزء مسؤول عن رفع وحذف فيديوهات السيارات
-| محمي بـ Sanctum (auth)
-*/
-
-Route::middleware('auth:sanctum')->group(function () {
-
-    /**
-     * 📌 إضافة فيديو إلى سيارة
-     * POST /api/cars/{carId}/videos
-     */
-    Route::post('/cars/{carId}/videos', [CarVideoController::class, 'store']);
-
-    /**
-     * 📌 حذف فيديو
-     * DELETE /api/videos/{id}
-     */
-    Route::delete('/videos/{id}', [CarVideoController::class, 'destroy']);
-
+    Route::post('/car-videos', [CarVideoController::class, 'store']);
+    Route::get('/car-videos/{car_id}', [CarVideoController::class, 'getByCar']);
+    Route::delete('/car-videos/{id}', [CarVideoController::class, 'delete']);
 });

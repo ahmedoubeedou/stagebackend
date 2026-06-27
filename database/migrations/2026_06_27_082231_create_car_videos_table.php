@@ -6,25 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('car_videos', function (Blueprint $table) {
-
             $table->id();
 
+            // 📌 relation avec cars
             $table->foreignId('car_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                  ->constrained('cars')
+                  ->onDelete('cascade');
 
+            // 🎥 path vidéo (URL ou storage path)
             $table->string('video_path');
 
-            $table->integer('duration')->nullable();
-
             $table->timestamps();
-
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('car_videos');

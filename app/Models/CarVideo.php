@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Car;
 
 class CarVideo extends Model
 {
@@ -12,11 +11,10 @@ class CarVideo extends Model
 
     protected $fillable = [
         'car_id',
-        'video_path',
-        'duration',
+        'video_path'
     ];
 
-    // الفيديو ينتمي إلى سيارة واحدة
+    // 📌 relation avec Car
     public function car()
     {
         return $this->belongsTo(Car::class);

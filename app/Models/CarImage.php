@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Car;
 
 class CarImage extends Model
 {
@@ -12,11 +11,10 @@ class CarImage extends Model
 
     protected $fillable = [
         'car_id',
-        'image_path',
-        'is_cover',
+        'image_path'
     ];
 
-    // الصورة تنتمي إلى سيارة واحدة
+    // 📌 relation avec Car
     public function car()
     {
         return $this->belongsTo(Car::class);

@@ -3,78 +3,58 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
-use App\Models\CarImage;
 use Illuminate\Http\Request;
+use App\Models\CarImage;
 
 class CarImageController extends Controller
 {
-    /**
-     * 📌 إضافة صورة لسيارة
-     */
-    public function store(Request $request, $carId)
+    // 📌 Save image path (string URL or path)
+    public function store(Request $request)
     {
-        // التحقق من الصورة
         $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'car_id' => 'required|exists:cars,id',
+            'image_path' => 'required|string'
         ]);
 
-        // التأكد أن السيارة تخص المستخدم
-        $car = Car::where('id', $carId)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if (!$car) {
-            return response()->json([
-                'message' => 'Voiture introuvable ou non autorisée'
-            ], 404);
-        }
-
-        // رفع الصورة
-        $path = $request->file('image')->store('cars/images', 'public');
-
-        // حفظ في قاعدة البيانات
         $image = CarImage::create([
-            'car_id' => $car->id,
-            'path' => $path
+            'car_id' => $request->car_id,
+            'image_path' => $request->image_path
         ]);
 
         return response()->json([
-            'message' => 'Image ajoutée avec succès',
-            'image' => $image
+            'message' => 'Image saved successfully',
+            'data' => [
+                'id' => $image->id,
+                'car_id' => $image->car_id,
+                'url' => $image->image_path
+            ]
         ]);
     }
 
-    /**
-     * 📌 حذف صورة
-     */
-    public function destroy(Request $request, $id)
+    // 📌 Get images by car
+    public function getByCar($car_id)
     {
-        // البحث عن الصورة
-        $image = CarImage::find($id);
+        $images = CarImage::where('car_id', $car_id)->get();
 
-        if (!$image) {
-            return response()->json([
-                'message' => 'Image introuvable'
-            ], 404);
-        }
+        return response()->json([
+            'car_id' => $car_id,
+            'images' => $images->map(function ($img) {
+                return [
+                    'id' => $img->id,
+                    'url' => $img->image_path
+                ];
+            })
+        ]);
+    }
 
-        // التأكد أن السيارة تخص المستخدم
-        $car = Car::where('id', $image->car_id)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if (!$car) {
-            return response()->json([
-                'message' => 'Non autorisé'
-            ], 403);
-        }
-
-        // حذف الصورة
+    // 📌 Delete image
+    public function delete($id)
+    {
+        $image = CarImage::findOrFail($id);
         $image->delete();
 
         return response()->json([
-            'message' => 'Image supprimée avec succès'
+            'message' => 'Image deleted successfully'
         ]);
     }
 }

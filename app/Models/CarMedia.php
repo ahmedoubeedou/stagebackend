@@ -5,16 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CarImage extends Model
+class CarMedia extends Model
 {
     use HasFactory;
 
+    protected $table = 'car_media';
+
     protected $fillable = [
         'car_id',
-        'image_path'
+        'file_path',
+        'file_url',
+        'media_type',
+        'is_cover',
+        'sort_order',
     ];
 
-    // 📌 relation avec Car
+    protected $casts = [
+        'is_cover' => 'boolean',
+        'sort_order' => 'integer',
+    ];
+
     public function car()
     {
         return $this->belongsTo(Car::class);

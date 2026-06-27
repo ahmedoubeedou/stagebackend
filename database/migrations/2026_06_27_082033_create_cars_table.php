@@ -9,37 +9,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cars', function (Blueprint $table) {
-
             $table->id();
-
-            $table->foreignId('user_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-
-            $table->string('brand');
-            $table->string('model');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('brand', 80);
+            $table->string('model', 80);
             $table->year('year');
-
-            $table->decimal('price',10,2);
-
-            $table->string('fuel_type')->nullable();
-            $table->string('transmission')->nullable();
-
-            $table->integer('mileage')->nullable();
-            $table->string('color')->nullable();
-
-            $table->string('condition')->default('used');
-
-            $table->enum('status', [
-                'available',
-                'sold',
-                'hidden'
-            ])->default('available');
-
+            $table->decimal('price', 10, 2);
+            $table->unsignedInteger('mileage');
+            $table->enum('fuel_type', ['gasoline', 'diesel', 'electric', 'hybrid']);
+            $table->enum('transmission', ['automatic', 'manual']);
+            $table->string('color', 40)->nullable();
             $table->text('description')->nullable();
-
+            $table->string('location', 100)->nullable();
+            $table->enum('status', ['available', 'sold', 'hidden'])->default('available');
             $table->timestamps();
-
         });
     }
 

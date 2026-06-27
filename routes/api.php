@@ -1,109 +1,37 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CarController;
-use App\Http\Controllers\Api\CarImageController;
-use App\Http\Controllers\Api\CarVideoController;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-// 🔓 بدون تسجيل دخول
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-// 🔐 يحتاج Token
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-});
-
-
-
-
-// Route::get('/test', function () {
-
-//     return response()->json([
-//         "message"=>"API working"
-//     ]);
-
-// });
-
-
-
-
-
-
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CarController;
+use App\Http\Controllers\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
-| Car API Routes
+| API Routes
 |--------------------------------------------------------------------------
-| جميع الروابط الخاصة بالسيارات (Cars)
-| محمية بـ Sanctum (يجب تسجيل الدخول)
 */
 
+// ── PUBLIC ROUTES (no token needed) ─────────────────────
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login',    [AuthController::class, 'login']);
+
+Route::get('/cars',      [CarController::class, 'index']);
+Route::get('/cars/{id}', [CarController::class, 'show']);
+
+// ── PRIVATE ROUTES (Sanctum token required) ─────────────
 Route::middleware('auth:sanctum')->group(function () {
-
-    /**
-     * 📌 جلب سيارات المستخدم الحالي
-     */
-    Route::get('/cars', [CarController::class, 'index']);
-
-    /**
-     * 📌 لوحة التحكم: جميع السيارات
-     */
-    Route::get('/dashboard/cars', [CarController::class, 'dashboard']);
-
-    /**
-     * 📌 إضافة سيارة جديدة
-     */
-    Route::post('/cars', [CarController::class, 'store']);
-
-    /**
-     * 📌 عرض سيارة واحدة
-     */
-    Route::get('/cars/{id}', [CarController::class, 'show']);
-
-    /**
-     * 📌 تحديث سيارة
-     */
-    Route::put('/cars/{id}', [CarController::class, 'update']);
-
-    /**
-     * 📌 حذف سيارة
-     */
-    Route::delete('/cars/{id}', [CarController::class, 'destroy']);
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Auth required)
-|--
-------------------------------------------------------------------------*/
-Route::middleware('auth:sanctum')->group(function () {
-
-    /*
-    |--------------------------
-    | 📸 Car Images
-    |--------------------------
-    */
-
-    Route::post('/car-images', [CarImageController::class, 'store']);
-    Route::get('/car-images/{car_id}', [CarImageController::class, 'getByCar']);
-    Route::delete('/car-images/{id}', [CarImageController::class, 'delete']);
-
-    /*
-    |--------------------------
-    | 🎥 Car Videos
-    |--------------------------
-    */
-
-    Route::post('/car-videos', [CarVideoController::class, 'store']);
-    Route::get('/car-videos/{car_id}', [CarVideoController::class, 'getByCar']);
-    Route::delete('/car-videos/{id}', [CarVideoController::class, 'delete']);
+    Route::post('/logout',           [AuthController::class, 'logout']);
+    Route::get('/user',              [AuthController::class, 'me']);
+    
+    // User Cars Management
+    Route::get('/user/cars',         [CarController::class, 'myCars']);
+    Route::post('/cars',             [CarController::class, 'store']);
+    Route::put('/cars/{id}',         [CarController::class, 'update']);
+    Route::delete('/cars/{id}',      [CarController::class, 'destroy']);
+    
+    // Favorites Management
+    Route::get('/user/favorites',            [FavoriteController::class, 'index']);
+    Route::post('/user/favorites/{carId}',   [FavoriteController::class, 'store']);
+    Route::delete('/user/favorites/{carId}', [FavoriteController::class, 'destroy']);
+    Route::get('/user/favorites/{carId}',    [FavoriteController::class, 'show']);
 });

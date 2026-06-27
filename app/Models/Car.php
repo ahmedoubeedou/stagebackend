@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\CarImage;
-use App\Models\CarVideo;
 
 class Car extends Model
 {
@@ -18,42 +15,66 @@ class Car extends Model
         'model',
         'year',
         'price',
+        'mileage',
         'fuel_type',
         'transmission',
-        'mileage',
         'color',
-        'condition',
-        'status',
         'description',
+        'location',
+        'status',
     ];
 
-    /*
-    |--------------------------------------
-    | العلاقات
-    |--------------------------------------
-    */
-
-    // السيارة تنتمي لمستخدم واحد
+    // Belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // السيارة لديها صور متعددة
+    // Has many media files
+    public function media()
+    {
+        return $this->hasMany(CarMedia::class)->orderBy('sort_order');
+    }
+
+    // Shortcut: only images
     public function images()
     {
-        return $this->hasMany(CarImage::class);
+        return $this->hasMany(CarMedia::class)->where('media_type', 'image');
     }
 
-    // السيارة لديها فيديوهات متعددة
-    public function videos()
+    // Favorites relationship
+    public function favorites()
     {
-        return $this->hasMany(CarVideo::class);
+        return $this->hasMany(Favorite::class);
     }
 
-    // صورة الغلاف فقط (اختياري لكنه مهم)
-    public function coverImage()
+    // Override toArray to match frontend schema expectations
+    public function toArray()
     {
-        return $this->hasOne(CarImage::class)->where('is_cover', true);
+        $array = parent::toArray();
+
+        // Convert key timestamps
+        $array['createdAt'] = $this->created_at ? $this->created_at->format('Y-m-d') : null;
+
+        // Populate media array
+        // Make sure media is loaded or query it
+        $mediaCollection = $this->relationLoaded('media') ? $this->media : $this->media()->get();
+        
+        $array['images'] = $mediaCollection->where('media_type', 'image')->sortBy('sort_order')->pluck('file_url')->values()->toArray();
+        $array['video'] = $mediaCollection->where('media_type', 'video')->first()?->file_url;
+
+        // Populate seller
+        $userModel = $this->relationLoaded('user') ? $this->user : $this->user()->first();
+        if ($userModel) {
+            $array['seller'] = [
+                'id'    => $userModel->id,
+                'name'  => $userModel->name,
+                'phone' => $userModel->phone,
+            ];
+        } else {
+            $array['seller'] = null;
+        }
+
+        return $array;
     }
 }

@@ -104,7 +104,7 @@ class CarController extends Controller
             'year'         => 'required|digits:4|integer',
             'price'        => 'required|numeric|min:0',
             'mileage'      => 'required|integer|min:0',
-            'fuel_type'    => 'required|in:gasoline,diesel,electric,hybrid',
+            'fuel_type'    => 'required|in:gasoline,diesel,electric',
             'transmission' => 'required|in:automatic,manual',
             'images'       => 'nullable|array|max:10',
             'images.*'     => 'image|mimes:jpg,jpeg,png,webp|max:5120',
@@ -112,6 +112,7 @@ class CarController extends Controller
             'color'        => 'nullable|string|max:40',
             'description'  => 'nullable|string',
             'location'     => 'nullable|string|max:100',
+            'phone'        => 'nullable|string|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -123,18 +124,19 @@ class CarController extends Controller
         }
 
         $car = Car::create([
-            'user_id'      => $request->user()->id,
-            'brand'        => $request->brand,
-            'model'        => $request->model,
-            'year'         => $request->year,
-            'price'        => $request->price,
-            'mileage'      => $request->mileage,
-            'fuel_type'    => $request->fuel_type,
-            'transmission' => $request->transmission,
-            'color'        => $request->color,
-            'description'  => $request->description,
-            'location'     => $request->location ?? 'Nouakchott',
-            'status'       => 'available',
+            'user_id'       => $request->user()->id,
+            'brand'         => $request->brand,
+            'model'         => $request->model,
+            'year'          => $request->year,
+            'price'         => $request->price,
+            'mileage'       => $request->mileage,
+            'fuel_type'     => $request->fuel_type,
+            'transmission'  => $request->transmission,
+            'color'         => $request->color,
+            'description'   => $request->description,
+            'location'      => $request->location ?? 'Nouakchott',
+            'contact_phone' => $request->phone,
+            'status'        => 'available',
         ]);
 
         // Upload images
@@ -183,12 +185,13 @@ class CarController extends Controller
             'year'         => 'required|digits:4|integer',
             'price'        => 'required|numeric|min:0',
             'mileage'      => 'required|integer|min:0',
-            'fuel_type'    => 'required|in:gasoline,diesel,electric,hybrid',
+            'fuel_type'    => 'required|in:gasoline,diesel,electric',
             'transmission' => 'required|in:automatic,manual',
             // images and video validation are handled manually because they can contain string URLs
             'color'        => 'nullable|string|max:40',
             'description'  => 'nullable|string',
             'location'     => 'nullable|string|max:100',
+            'phone'        => 'nullable|string|max:30',
             'status'       => 'nullable|in:available,sold,hidden',
         ]);
 
@@ -201,17 +204,18 @@ class CarController extends Controller
         }
 
         $car->update([
-            'brand'        => $request->brand,
-            'model'        => $request->model,
-            'year'         => $request->year,
+            'brand'         => $request->brand,
+            'model'         => $request->model,
+            'year'          => $request->year,
             'price'         => $request->price,
-            'mileage'      => $request->mileage,
-            'fuel_type'    => $request->fuel_type,
-            'transmission' => $request->transmission,
-            'color'        => $request->color,
-            'description'  => $request->description,
-            'location'     => $request->location,
-            'status'       => $request->status ?? $car->status,
+            'mileage'       => $request->mileage,
+            'fuel_type'     => $request->fuel_type,
+            'transmission'  => $request->transmission,
+            'color'         => $request->color,
+            'description'   => $request->description,
+            'location'      => $request->location,
+            'contact_phone' => $request->phone ?? $car->contact_phone,
+            'status'        => $request->status ?? $car->status,
         ]);
 
         // Handing Media files Sync (Images & Videos)

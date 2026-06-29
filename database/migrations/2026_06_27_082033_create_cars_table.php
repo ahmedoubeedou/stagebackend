@@ -16,11 +16,12 @@ return new class extends Migration
             $table->year('year');
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('mileage');
-            $table->enum('fuel_type', ['gasoline', 'diesel', 'electric', 'hybrid']);
+            $table->enum('fuel_type', ['gasoline', 'diesel', 'electric']);
             $table->enum('transmission', ['automatic', 'manual']);
             $table->string('color', 40)->nullable();
             $table->text('description')->nullable();
             $table->string('location', 100)->nullable();
+            $table->string('contact_phone', 30)->nullable();
             $table->enum('status', ['available', 'sold', 'hidden'])->default('available');
             $table->timestamps();
         });

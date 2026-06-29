@@ -176,7 +176,7 @@ class CarMarketplaceTest extends TestCase
                 'year'         => 2023,
                 'price'        => 16000.00,
                 'mileage'      => 35000,
-                'fuel_type'    => 'hybrid',
+                'fuel_type'    => 'electric',
                 'transmission' => 'automatic',
                 'images'       => [$storeResponse->json('data.images.0')], // keep old image
                 'video'        => 'delete', // delete video

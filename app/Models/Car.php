@@ -21,6 +21,7 @@ class Car extends Model
         'color',
         'description',
         'location',
+        'contact_phone',
         'status',
     ];
 
@@ -63,13 +64,13 @@ class Car extends Model
         $array['images'] = $mediaCollection->where('media_type', 'image')->sortBy('sort_order')->pluck('file_url')->values()->toArray();
         $array['video'] = $mediaCollection->where('media_type', 'video')->first()?->file_url;
 
-        // Populate seller
+        // Populate seller — contact_phone on the listing overrides the account phone
         $userModel = $this->relationLoaded('user') ? $this->user : $this->user()->first();
         if ($userModel) {
             $array['seller'] = [
                 'id'    => $userModel->id,
                 'name'  => $userModel->name,
-                'phone' => $userModel->phone,
+                'phone' => $this->contact_phone ?: $userModel->phone,
             ];
         } else {
             $array['seller'] = null;
